@@ -1,7 +1,7 @@
 import os
 import cv2
 
-path = "./test"
+path = "./vision/data"
 files = os.listdir(path) 
 # print(files)
 

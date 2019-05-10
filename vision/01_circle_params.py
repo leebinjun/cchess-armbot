@@ -8,7 +8,7 @@ import argparse
 
 
 min_value = 1
-max_value = 200
+max_value = 50
 
 minDist = 10
 param1  = 30

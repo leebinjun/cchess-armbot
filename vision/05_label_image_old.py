@@ -5,7 +5,7 @@ import re
 # from PIL import Image
 # import matplotlib.pyplot as plt
 
-lines = tf.gfile.GFile('./tmp/output_labels.txt').readlines()
+lines = tf.gfile.GFile('./vision/tmp/output_labels.txt').readlines()
 uid_to_human = {}
 #一行一行读取数据
 for uid,line in enumerate(lines) :
@@ -20,7 +20,7 @@ def id_to_string(node_id):
  
  
 #创建一个图来存放google训练好的模型
-with tf.gfile.FastGFile('./tmp/output_graph.pb', 'rb') as f:
+with tf.gfile.FastGFile('./vision/tmp/output_graph.pb', 'rb') as f:
     graph_def = tf.GraphDef()
     graph_def.ParseFromString(f.read())
     tf.import_graph_def(graph_def, name='')
@@ -29,7 +29,7 @@ with tf.gfile.FastGFile('./tmp/output_graph.pb', 'rb') as f:
 with tf.Session() as sess:
     softmax_tensor = sess.graph.get_tensor_by_name('final_result:0')
     #遍历目录
-    for root,dirs,files in os.walk('./test/'):
+    for root,dirs,files in os.walk('./vision/test/'):
         print(files)
         for file in files:
             print(root+"/"+file)
@@ -56,3 +56,4 @@ with tf.Session() as sess:
                 #获取该分类的置信度
                 score = predictions[node_id]
                 print('%s (score = %.5f)' % (human_string, score))
+                

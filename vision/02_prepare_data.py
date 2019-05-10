@@ -18,8 +18,8 @@ while ret is True:
     cv2.imshow('gray',img_gray)
     
     #霍夫变换圆检测
-    circles = cv2.HoughCircles(img_gray, cv2.HOUGH_GRADIENT, 1, 10,
-                               param1=30, param2=15, minRadius=15, maxRadius=16)
+    circles = cv2.HoughCircles(img_gray, cv2.HOUGH_GRADIENT, 1, 20,
+                               param1=20, param2=25, minRadius=14, maxRadius=16)
     # #输出返回值，方便查看类型
     # print(circles)
     if type(circles) == None.__class__:

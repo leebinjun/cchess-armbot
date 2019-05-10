@@ -30,6 +30,17 @@ class ComThread(object):
         self.port = None
         self.ID = None
         self.data = None
+
+    #查看可用的串口
+    def Check_Comx(self):
+        import serial.tools.list_ports
+        comlist = list(serial.tools.list_ports.comports())
+        if len(comlist) <= 0:
+            print("Wrong：Not Found Com, Please Check The Connection.")
+            return 0
+        else:
+            return comlist 
+
    #定义串口等待的函数
     def waiting(self):
         if not self.waitEnd is None:
@@ -71,7 +82,11 @@ class ComThread(object):
 
 if __name__ == "__main__":
     
-    pass
+    myserial = ComThread()
+    alist = myserial.Check_Comx()
+    print(alist)
+    for i in alist:
+        print(str(i))
 
 # 复位
 #1P1500#2P1500#3P1500#4P1500T1000\r\n
