@@ -1,7 +1,13 @@
+# Python Tkinter Scale和LabeledScale用法 http://c.biancheng.net/view/2509.html
+# python tkinter可以使用的颜色 - wjcaiyf的专栏 - CSDN博客 https://blog.csdn.net/wjciayf/article/details/79261005
+
+import sys,os
+sys.path.append(os.path.dirname(__file__) + os.sep + '../')
+
 import tkinter as tk
 from tkinter import Frame
 from robot import Armbot
-
+import config
 
 class GUI(Frame):
     
@@ -9,38 +15,118 @@ class GUI(Frame):
 
 
         Frame.__init__(self, master, **kw)
-        frame = Frame(master)
-        frame.pack()
+        frame = Frame(master, height=692+30, width=803+20, bg="Chocolate")
+        frame.place(x=(720-692-10)/2, y=(840-803-10)/2)
         # 串口设置相关变量
-        self.port = 'com3'
-        self.baudrate = 9600
-        # 输出框提示
-        self.lab3 = tk.Label(frame, text='Message Show')
-        self.lab3.grid (row=0, column=1, sticky=tk.W)
-        # 输出框
-        self.show = tk.Text(frame, width=90, height=40, wrap=tk.WORD)
-        self.show.grid (row=1, column=1, rowspan=4, sticky=tk.W)
-        # 输入框提示
-        self.lab4 = tk.Label(frame, text='Hi, Input here!')
-        self.lab4.grid (row=5, column=1, sticky=tk.W)
-        # 输入框
-        self.input = tk.Entry(frame, width=60)
-        self.input.grid (row=6, column=1, rowspan=4, sticky=tk.W)
-        # 输入按钮
-        self.button1 = tk.Button(frame, text="Input", command=self.Submit)
-        self.button1.grid (row=11, column=1, sticky=tk.E)
-        # 串口开启按钮
-        self.button2 = tk.Button(frame, text='Open Serial....', command=self.open)
-        self.button2.grid (row=2, column=0, sticky=tk.W)
-        # 串口关闭按钮
-        self.button3 = tk.Button(frame, text='Close Serial....', command=self.close)
-        self.button3.grid (row=3, column=0, sticky=tk.W)
-        # 图像显示按钮
-        self.button4 = tk.Button(frame, text='Display image', command=self.Display_image)
-        self.button4.grid (row=4, column=0, sticky=tk.W)
-        # 串口信息提示框
-        self.showSerial = tk.Text(frame, width=30, height=1, wrap=tk.WORD)
-        self.showSerial.grid (row=11, column=0, sticky=tk.W)
+        self.armbot = Armbot()
+
+        # 创建画布，放置机械臂背景图
+        self.ca = tk.Canvas(frame, 
+                            background='white',
+                            width=803,
+                            height=692)
+        self.bm = tk.PhotoImage(file="./images/armbot.gif")
+        self.ca.place(x=(720-692-10)/2, y=(840-803-10)/2, width=803, height=692)
+        self.ca.create_image(803/2 + 1, 692/2 + 1, image=self.bm)
+
+        # 创建滑动条，速度
+        self.scs = tk.Scale(frame, 
+                            label='speed',                    # 设置标签内容
+                            from_=500,                        # 设置最大值
+                            to=9999,                          # 设置最小值
+                            orient=tk.HORIZONTAL,             # 设置水平方向
+                            length=200,                       # 设置轨道的长度
+                            width=10,                         # 设置轨道的宽度
+                            showvalue=True,                   # 设置显示当前值
+                            troughcolor='blue',               # 设置轨道的背景色
+                            variable=self.armbot.speed,       # 设置绑定变量
+                            sliderlength=12,                  # 设置滑块的长度
+                            sliderrelief=tk.FLAT,             # 设置滑块的立体样式
+                            tickinterval=5000,                # 设置指示刻度细分
+                            resolution=50,                    # 设置步长
+                            bg='LightCyan',                   # 设置背景颜色
+                            command=self.set_speed)       # 设置绑定事件处理，函数或方法
+        self.scs.place(x=25, y=50)
+        self.scs.set(self.armbot.speed)
+
+        # 创建滑动条，舵机1
+        self.servo1_v = config.INIT_POS[1]
+        self.sc1 = tk.Scale(frame, 
+                            label='servo1',                   # 设置标签内容
+                            from_=500,                        # 设置最大值
+                            to=2000,                          # 设置最小值
+                            orient=tk.HORIZONTAL,             # 设置水平方向
+                            length=200,                       # 设置轨道的长度
+                            width=10,                         # 设置轨道的宽度
+                            showvalue=True,                   # 设置显示当前值
+                            troughcolor='blue',               # 设置轨道的背景色
+                            variable=self.servo1_v,           # 设置绑定变量
+                            sliderlength=12,                  # 设置滑块的长度
+                            sliderrelief=tk.FLAT,             # 设置滑块的立体样式
+                            tickinterval=1500/3,              # 设置指示刻度细分
+                            resolution=1,                     # 设置步长
+                            bg='LightCyan',                   # 设置背景颜色
+                            command=self.servo1_to_pos)       # 设置绑定事件处理，函数或方法
+        self.sc1.place(x=255, y=600)
+        self.sc1.set(self.servo1_v)
+
+        # 创建滑动条，舵机2
+        self.servo2_v = config.INIT_POS[2]
+        self.sc2 = tk.Scale(frame, 
+                            label='servo2',                   # 设置标签内容
+                            from_=1800,                       # 设置最大值
+                            to=2200,                          # 设置最小值
+                            orient=tk.HORIZONTAL,             # 设置水平方向
+                            length=200,                       # 设置轨道的长度
+                            width=10,                         # 设置轨道的宽度
+                            showvalue=True,                   # 设置显示当前值
+                            troughcolor='gold',               # 设置轨道的背景色
+                            variable=self.servo2_v,           # 设置绑定变量
+                            sliderlength=12,                  # 设置滑块的长度
+                            sliderrelief=tk.FLAT,             # 设置滑块的立体样式
+                            tickinterval=400/4,               # 设置指示刻度细分
+                            resolution=1,                     # 设置步长
+                            bg='lightyellow',                 # 设置背景颜色
+                            command=self.servo2_to_pos)       # 设置绑定事件处理，函数或方法
+        self.sc2.place(x=115, y=310)
+        self.sc2.set(self.servo2_v)
+        
+        # 创建滑动条，舵机3
+        self.servo3_v = config.INIT_POS[3]
+        self.sc3 = tk.Scale(frame, 
+                            label='servo3',                   # 设置标签内容
+                            from_=700,                        # 设置最大值
+                            to=1600,                          # 设置最小值
+                            orient=tk.HORIZONTAL,             # 设置水平方向
+                            length=200,                       # 设置轨道的长度
+                            width=10,                         # 设置轨道的宽度
+                            showvalue=True,                   # 设置显示当前值
+                            troughcolor='orangeRed',          # 设置轨道的背景色
+                            variable=self.servo3_v,           # 设置绑定变量
+                            sliderlength=12,                  # 设置滑块的长度
+                            sliderrelief=tk.FLAT,             # 设置滑块的立体样式
+                            tickinterval=900/3,               # 设置指示刻度细分
+                            resolution=1,                     # 设置步长
+                            bg='LavenderBlush',               # 设置背景颜色
+                            command=self.servo3_to_pos)       # 设置绑定事件处理，函数或方法
+        self.sc3.place(x=600, y=260)
+        self.sc3.set(self.servo3_v)
+
+        # 创建单选钮，气泵
+        self.var = tk.StringVar()
+        self.var.set('Stop')
+        self.label = tk.Label(frame, text="AIR PUMP: "+self.var.get(), bg='palegreen', font=('Arial', 10), width=25, height=2)
+        self.label2 = tk.Label(frame, text=" ", bg='palegreen', font=('Arial', 10), width=25, height=2)
+        self.label.place(x=550, y=545)
+        self.label2.place(x=550, y=545+35)
+        
+        self.r1 = tk.Radiobutton(frame, text='Suck', variable=self.var, value='Suck', bg='forestgreen', command=self.airpump)
+        self.r2 = tk.Radiobutton(frame, text='Blow', variable=self.var, value='Blow', bg='forestgreen', command=self.airpump)
+        self.r3 = tk.Radiobutton(frame, text='Stop', variable=self.var, value='Stop', bg='forestgreen', command=self.airpump)
+        self.r1.place(x=555, y=580)
+        self.r2.place(x=625, y=580)
+        self.r3.place(x=695, y=580)
+
 
         # 添加菜单
         menubar = tk.Menu(master)
@@ -51,51 +137,31 @@ class GUI(Frame):
         filemenu.add_command (label='Exit', command=master.quit)
         master.config (menu=menubar)
 
+    def airpump(self):
+        self.label.config(text="AIR PUMP: "+self.var.get())
+        if self.var.get() == "Suck":
+            # print("Suck")
+            self.armbot.go_air_pump(signal=config.PUMP_SUCK)
+        elif self.var.get() == "Blow":
+            self.armbot.go_air_pump(signal=config.PUMP_BLOW)
+        elif self.var.get() == "Stop":
+            self.armbot.go_air_pump(signal=config.PUMP_STOP)
 
-        #串口初始化
-        self.ser = Armbot(self.port)
+    def set_speed(self, v):
+        print("speed set ", v)
+        self.armbot.speed = v
 
-    def Submit(self):
-        context1 = self.input.get ()
-        n = self.ser.write (context1)
-        output = self.ser.read (n)
-        print(output)
-        self.show.delete (0.0, END)
-        self.show.insert (0.0, output)
+    def servo1_to_pos(self, value1):
+        print("servo1 to ", value1)
+        self.armbot.one_servo_to_pos(servo_id=1, servo_pos=int(value1))
 
-    def open(self):
-        self.ser.open ()
-        if self.ser.isOpen () == True:
-            self.showSerial.delete (0.0, END)
-            self.showSerial.insert (0.0, "Serial has been opend!")
+    def servo2_to_pos(self, value2):
+        print("servo2 to ", value2)
+        self.armbot.one_servo_to_pos(servo_id=2, servo_pos=int(value2))
 
-    def close(self):
-        self.ser.close ()
-        if self.ser.isOpen () == False:
-            self.showSerial.delete (0.0, END)
-            self.showSerial.insert (0.0, "Serial has been closed!")
-            thread.exit ()  # 关闭线程；
-
-    def Display_image(self):
-        COM_X = Check_Comx ()
-        mSerial = MSerialPort (COM_X, 9600)
-        thread.start_new_thread (mSerial.read_data, ())  # 调用thread模块中的start_new_thread()函数来产生新线程
-        Y_lim = raw_input ('enter Y_lim: ')
-        while True:
-            i = 0
-            time.sleep (1 / 30)
-            mSerial.read_data ()
-            plt.ion ()  # 开启matplotlib的交互模式
-            plt.xlim (0, 50)  # 首先得设置一个x轴的区间 这个是必须的
-            plt.ylim (-int (Y_lim), int (Y_lim))  # y轴区间
-            data_list.append (mSerial.read_data ())
-
-            i = i + 1
-            if i > 50:  # 初始状态x轴最大为50
-                plt.xlim (i - 50, i)  # 如果当前坐标x已经超过了50，将x的轴的范围右移。
-            plt.plot (data_list)  # 将list传入plot画图
-            plt.pause (0.01)  # 这个为停顿0.01s，能得到产生实时的效果
- 
+    def servo3_to_pos(self, value3):
+        print("servo3 to ", value3)
+        self.armbot.one_servo_to_pos(servo_id=3, servo_pos=int(value3))
 
 
 
@@ -103,8 +169,9 @@ class GUI(Frame):
 if __name__ == "__main__":
     root = tk.Tk()
     root.title("Serial GUI")
-    root.geometry("900x630")
+    root.geometry("840x730")
     app = GUI(root)
-    root.mainloop ()
+    root.mainloop()
+
 
 
