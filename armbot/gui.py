@@ -38,19 +38,19 @@ class GUI(Frame):
                             length=200,                       # 设置轨道的长度
                             width=10,                         # 设置轨道的宽度
                             showvalue=True,                   # 设置显示当前值
-                            troughcolor='blue',               # 设置轨道的背景色
+                            troughcolor='crimson',            # 设置轨道的背景色
                             variable=self.armbot.speed,       # 设置绑定变量
                             sliderlength=12,                  # 设置滑块的长度
                             sliderrelief=tk.FLAT,             # 设置滑块的立体样式
                             tickinterval=5000,                # 设置指示刻度细分
                             resolution=50,                    # 设置步长
-                            bg='LightCyan',                   # 设置背景颜色
-                            command=self.set_speed)       # 设置绑定事件处理，函数或方法
-        self.scs.place(x=25, y=50)
+                            bg='Lavenderblush',               # 设置背景颜色
+                            command=self.set_speed)           # 设置绑定事件处理，函数或方法
+        self.scs.place(x=50, y=50)
         self.scs.set(self.armbot.speed)
 
         # 创建滑动条，舵机1
-        self.servo1_v = config.INIT_POS[1]
+        self.servo1_v = tk.StringVar()
         self.sc1 = tk.Scale(frame, 
                             label='servo1',                   # 设置标签内容
                             from_=500,                        # 设置最大值
@@ -68,10 +68,10 @@ class GUI(Frame):
                             bg='LightCyan',                   # 设置背景颜色
                             command=self.servo1_to_pos)       # 设置绑定事件处理，函数或方法
         self.sc1.place(x=255, y=600)
-        self.sc1.set(self.servo1_v)
+        self.sc1.set(config.INIT_POS[1])
 
         # 创建滑动条，舵机2
-        self.servo2_v = config.INIT_POS[2]
+        self.servo2_v = tk.StringVar()
         self.sc2 = tk.Scale(frame, 
                             label='servo2',                   # 设置标签内容
                             from_=1800,                       # 设置最大值
@@ -89,10 +89,10 @@ class GUI(Frame):
                             bg='lightyellow',                 # 设置背景颜色
                             command=self.servo2_to_pos)       # 设置绑定事件处理，函数或方法
         self.sc2.place(x=115, y=310)
-        self.sc2.set(self.servo2_v)
+        self.sc2.set(config.INIT_POS[2])
         
         # 创建滑动条，舵机3
-        self.servo3_v = config.INIT_POS[3]
+        self.servo3_v = tk.StringVar()
         self.sc3 = tk.Scale(frame, 
                             label='servo3',                   # 设置标签内容
                             from_=700,                        # 设置最大值
@@ -110,7 +110,7 @@ class GUI(Frame):
                             bg='LavenderBlush',               # 设置背景颜色
                             command=self.servo3_to_pos)       # 设置绑定事件处理，函数或方法
         self.sc3.place(x=600, y=260)
-        self.sc3.set(self.servo3_v)
+        self.sc3.set(config.INIT_POS[3])
 
         # 创建单选钮，气泵
         self.var = tk.StringVar()

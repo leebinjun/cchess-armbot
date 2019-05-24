@@ -12,6 +12,8 @@ def model_pre(x, y):
     return dl, theta
 
 def model_solve(dl, dh = 0):
+    # input:  dl, dh
+    # output: theta1, theta2 (degree of angle)
     '''
     if dl < 180:
         alpha = 90
