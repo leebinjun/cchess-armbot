@@ -225,7 +225,7 @@ class GUI(Frame):
                 
                 self.__points.clear()
 
-    def recognize_chess(self, img, circles_list):
+    def recognize_chess(self, img, circles_list, is_save=False):
         res = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
         for circle in circles_list:
             # 计算位置id
@@ -242,7 +242,8 @@ class GUI(Frame):
             cv2.imwrite(img_path, img_sub)
 
             ret, score = self.ident.chessidentify(img_path)
-            # cv2.imwrite(".\\vision\\data\\"+str(ret)+"\\"+str(time.time())+".jpg", img_sub)
+            if is_save:
+                cv2.imwrite(".\\vision\\data\\"+str(ret)+"\\"+str(time.time())+".jpg", img_sub)
 
             # res[id_x*8 + id_y] = (ret, score)
             res[id_x*8 + id_y] = ret
@@ -292,8 +293,8 @@ class GUI(Frame):
                 if self.flag_recognize_chess:
                     self.flag_recognize_chess = False
                     t1 = time.time()
-                    alist_a = self.recognize_chess(img_a, circles_a)
-                    alist_b = self.recognize_chess(img_b, circles_b)
+                    alist_a = self.recognize_chess(img_a, circles_a, is_save=True)
+                    alist_b = self.recognize_chess(img_b, circles_b, is_save=True)
                     alist = alist_a + alist_b
                     print(alist)
                     print("use time:", time.time()-t1)
