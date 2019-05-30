@@ -5,13 +5,10 @@ import argparse
 import tensorflow as tf
 import time
 import os
-
-import sys,os
-sys.path.append(os.path.dirname(__file__) + os.sep + '../')
  
 w = 28
 h = 28
-
+c = 3
 
 class Classify():
     
@@ -42,11 +39,9 @@ class Classify():
             y = tf.get_default_graph().get_tensor_by_name("fc2/output:0")
 
             # Read image
-            # print(filename)
-            from PIL import Image
             pil_im = array(Image.open(filename).convert('RGB').resize((w,h)),dtype=float32)
             #pil_im = (255-pil_im)/255.0
-            pil_im = pil_im.reshape((1,w*h*3))
+            pil_im = pil_im.reshape((1,w*h*c))
         
             time1 = time.time()
             # print("pil_im:", pil_im)
