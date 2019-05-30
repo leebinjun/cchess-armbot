@@ -53,5 +53,6 @@ def read_img(path):
     return x_train, y_train, x_val, y_val
  
 if __name__=="__main__":
-    path = './data'
-    x_train, y_train, x_val, y_val = read_img(path)
+    # path = './data'
+    # x_train, y_train, x_val, y_val = read_img(path)
+    pass

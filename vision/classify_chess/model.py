@@ -7,6 +7,7 @@ import numpy as np
  
 w = np.int32(28)
 h = np.int32(28)
+c = np.int32(3)
 n_class = np.int32(14)
  
 def weight_variable(shape, name):

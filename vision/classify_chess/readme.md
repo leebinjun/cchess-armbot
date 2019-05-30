@@ -1,12 +1,5 @@
 
-
-``` bash
-$ ls /dev/tty*
-$ source activate env
-$ python run.py --serial /dev/ttyUSB0
-```
-
-1. prepare data, python prepaocess.py  
+How to use:
+1. prepare data, python predo.py  
 2. python train.py  
-3. pyhton test.py  
-4. python run.py  
+3. pyhton classify.py  

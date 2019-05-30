@@ -11,6 +11,7 @@ import numpy as np
  
 w = 28
 h = 28
+c = 3
 n_class = 14 
 
 def main(args):
@@ -26,7 +27,7 @@ def train(lr, batch_size, epoches, keep_prob_value):
     path = './data/'
     x_train, y_train, x_val, y_val = read_image.read_img(path)
     
-    x = tf.placeholder(tf.float32, [None, w*h], name="images")
+    x = tf.placeholder(tf.float32, [None, w*h*c], name="images")
     y_ = tf.placeholder(tf.float32, [None, n_class], name="labels")
     keep_prob = tf.placeholder(tf.float32,name="keep_prob")
     y = model.model(x, keep_prob)
@@ -78,7 +79,7 @@ def parse_arguments(argv):
     parser.add_argument('--batch_size', type=float,
                         help="batch_size", default=100)
     parser.add_argument('--epoches', type=float,
-                        help="max iterations", default=500)
+                        help="max iterations", default=4500)
     parser.add_argument('--keep_prob', type=float,
                         help="keep prob", default=0.2)
     return parser.parse_args(argv)
