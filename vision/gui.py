@@ -4,176 +4,335 @@
 import sys,os
 sys.path.append(os.path.dirname(__file__) + os.sep + '../')
 
+import time
+import cv2
+import numpy as np
+
 import tkinter as tk
 from tkinter import Frame
-from classify import Classify
-import config
+from PIL import Image
+from PIL import ImageTk
+
+from vision_layout import config
+from vision_layout.utils import find_circles
+from vision_layout.utils import perTrans
+
+from vision.classify_chess.classify import Classify 
 
 class GUI(Frame):
     
     def __init__(self, master, **kw):
 
-
         Frame.__init__(self, master, **kw)
-        frame = Frame(master, height=692+10, width=803+20, bg="Chocolate")
-        frame.place(x=(720-692-10)/2, y=(840-803-10)/2)
+        frame = Frame(master, height=675, width=1200, bg="Honeydew")
+        frame.place(x=0, y=0)
 
+        self.cam = cv2.VideoCapture(0)
+        self.img = None
+        self.__points_a = config.POS_STORE_A  
+        self.__points_b = config.POS_STORE_B
+        self.__points = []  
+        self.__num = 0
+        self.flag_get_points = False       # 设置标志位 需要标点
+        self.flag_recognize_chess = False   # 设置标志位 识别棋子
 
-        # # 串口设置相关变量
-        # self.armbot = Armbot()
+        self.ident = Classify()
 
-        # # 创建画布，放置机械臂背景图
-        # self.ca = tk.Canvas(frame, 
-        #                     background='white',
-        #                     width=803,
-        #                     height=692)
-        # self.bm = tk.PhotoImage(file="./images/armbot.gif")
-        # self.ca.place(x=(720-692-10)/2, y=(840-803-10)/2, width=803, height=692)
-        # self.ca.create_image(803/2 + 1, 692/2 + 1, image=self.bm)
-
-        # # 创建滑动条，速度
-        # self.scs = tk.Scale(frame, 
-        #                     label='speed',                    # 设置标签内容
-        #                     from_=500,                        # 设置最大值
-        #                     to=9999,                          # 设置最小值
-        #                     orient=tk.HORIZONTAL,             # 设置水平方向
-        #                     length=200,                       # 设置轨道的长度
-        #                     width=10,                         # 设置轨道的宽度
-        #                     showvalue=True,                   # 设置显示当前值
-        #                     troughcolor='crimson',            # 设置轨道的背景色
-        #                     variable=self.armbot.speed,       # 设置绑定变量
-        #                     sliderlength=12,                  # 设置滑块的长度
-        #                     sliderrelief=tk.FLAT,             # 设置滑块的立体样式
-        #                     tickinterval=5000,                # 设置指示刻度细分
-        #                     resolution=50,                    # 设置步长
-        #                     bg='Lavenderblush',               # 设置背景颜色
-        #                     command=self.set_speed)           # 设置绑定事件处理，函数或方法
-        # self.scs.place(x=50, y=50)
-        # self.scs.set(self.armbot.speed)
-
-        # # 创建滑动条，舵机1
-        # self.servo1_v = config.INIT_POS[1]
-        # self.sc1 = tk.Scale(frame, 
-        #                     label='servo1',                   # 设置标签内容
-        #                     from_=500,                        # 设置最大值
-        #                     to=2000,                          # 设置最小值
-        #                     orient=tk.HORIZONTAL,             # 设置水平方向
-        #                     length=200,                       # 设置轨道的长度
-        #                     width=10,                         # 设置轨道的宽度
-        #                     showvalue=True,                   # 设置显示当前值
-        #                     troughcolor='blue',               # 设置轨道的背景色
-        #                     variable=self.servo1_v,           # 设置绑定变量
-        #                     sliderlength=12,                  # 设置滑块的长度
-        #                     sliderrelief=tk.FLAT,             # 设置滑块的立体样式
-        #                     tickinterval=1500/3,              # 设置指示刻度细分
-        #                     resolution=1,                     # 设置步长
-        #                     bg='LightCyan',                   # 设置背景颜色
-        #                     command=self.servo1_to_pos)       # 设置绑定事件处理，函数或方法
-        # self.sc1.place(x=255, y=600)
-        # self.sc1.set(self.servo1_v)
-
-        # # 创建滑动条，舵机2
-        # self.servo2_v = config.INIT_POS[2]
-        # self.sc2 = tk.Scale(frame, 
-        #                     label='servo2',                   # 设置标签内容
-        #                     from_=1800,                       # 设置最大值
-        #                     to=2200,                          # 设置最小值
-        #                     orient=tk.HORIZONTAL,             # 设置水平方向
-        #                     length=200,                       # 设置轨道的长度
-        #                     width=10,                         # 设置轨道的宽度
-        #                     showvalue=True,                   # 设置显示当前值
-        #                     troughcolor='gold',               # 设置轨道的背景色
-        #                     variable=self.servo2_v,           # 设置绑定变量
-        #                     sliderlength=12,                  # 设置滑块的长度
-        #                     sliderrelief=tk.FLAT,             # 设置滑块的立体样式
-        #                     tickinterval=400/4,               # 设置指示刻度细分
-        #                     resolution=1,                     # 设置步长
-        #                     bg='lightyellow',                 # 设置背景颜色
-        #                     command=self.servo2_to_pos)       # 设置绑定事件处理，函数或方法
-        # self.sc2.place(x=115, y=310)
-        # self.sc2.set(self.servo2_v)
+        # 图像_摄像头实时
+        self.panel = tk.Label(frame)  # initialize image panel
+        self.panel.place(x=150, y=10)
         
-        # # 创建滑动条，舵机3
-        # self.servo3_v = config.INIT_POS[3]
-        # self.sc3 = tk.Scale(frame, 
-        #                     label='servo3',                   # 设置标签内容
-        #                     from_=700,                        # 设置最大值
-        #                     to=1600,                          # 设置最小值
-        #                     orient=tk.HORIZONTAL,             # 设置水平方向
-        #                     length=200,                       # 设置轨道的长度
-        #                     width=10,                         # 设置轨道的宽度
-        #                     showvalue=True,                   # 设置显示当前值
-        #                     troughcolor='orangeRed',          # 设置轨道的背景色
-        #                     variable=self.servo3_v,           # 设置绑定变量
-        #                     sliderlength=12,                  # 设置滑块的长度
-        #                     sliderrelief=tk.FLAT,             # 设置滑块的立体样式
-        #                     tickinterval=900/3,               # 设置指示刻度细分
-        #                     resolution=1,                     # 设置步长
-        #                     bg='LavenderBlush',               # 设置背景颜色
-        #                     command=self.servo3_to_pos)       # 设置绑定事件处理，函数或方法
-        # self.sc3.place(x=600, y=260)
-        # self.sc3.set(self.servo3_v)
+        self.panel_a = tk.Label(frame)  # initialize image panel
+        self.panel_a.place(x=40, y=45)
 
-        # # 创建单选钮，气泵
-        # self.var = tk.StringVar()
-        # self.var.set('Stop')
-        # self.label = tk.Label(frame, text="AIR PUMP: "+self.var.get(), bg='palegreen', font=('Arial', 10), width=25, height=2)
-        # self.label2 = tk.Label(frame, text=" ", bg='palegreen', font=('Arial', 10), width=25, height=2)
-        # self.label.place(x=550, y=545)
-        # self.label2.place(x=550, y=545+35)
+        self.panel_b = tk.Label(frame)  # initialize image panel
+        self.panel_b.place(x=800, y=45)
+
+        # 按键_棋盘位置校准
+        self.btn = tk.Button(root, text="位置校准", command=self.do_get_points)
+        self.btn.place(x=50, y=550)
+
+        self.btn2 = tk.Button(root, text="棋子识别", command=self.do_recognize_chess)
+        self.btn2.place(x=250, y=550)
+
+        # 识别结果显示
+        self.var_r1 = tk.StringVar()
+        self.var_r1.set('abc')
+        self.var_r2 = tk.StringVar()
+        self.var_r2.set('abc')
+        self.lb1 = tk.Label(frame, text=self.var_r1.get(), bg='palegreen', font=('Arial', 10), width=80, height=2)
+        self.lb1.place(x=400, y=550)
+        self.lb2 = tk.Label(frame, text=self.var_r2.get(), bg='palegreen', font=('Arial', 10), width=80, height=2)
+        self.lb2.place(x=400, y=600)
+
+        # 找圆形 参数条 
+        self.var_a = tk.IntVar()
+        self.sc1 = tk.Scale(frame, 
+                            label='a',                        # 设置标签内容
+                            from_=1,                          # 设置最大值
+                            to=100,                           # 设置最小值
+                            orient=tk.HORIZONTAL,             # 设置水平方向
+                            length=200,                       # 设置轨道的长度
+                            width=10,                         # 设置轨道的宽度
+                            showvalue=True,                   # 设置显示当前值
+                            troughcolor='orangeRed',          # 设置轨道的背景色
+                            variable=self.var_a,              # 设置绑定变量
+                            sliderlength=12,                  # 设置滑块的长度
+                            sliderrelief=tk.FLAT,             # 设置滑块的立体样式
+                            tickinterval=10,                  # 设置指示刻度细分
+                            resolution=1,                     # 设置步长
+                            bg='LavenderBlush',               # 设置背景颜色
+                            command=self.set_var_a)           # 设置绑定事件处理，函数或方法
+        self.sc1.place(x=1000, y=50)
+        self.sc1.set(40)
+      
+
+        self.var_b = tk.IntVar()
+        self.sc2 = tk.Scale(frame, 
+                            label='b',                        # 设置标签内容
+                            from_=1,                          # 设置最大值
+                            to=100,                           # 设置最小值
+                            orient=tk.HORIZONTAL,             # 设置水平方向
+                            length=200,                       # 设置轨道的长度
+                            width=10,                         # 设置轨道的宽度
+                            showvalue=True,                   # 设置显示当前值
+                            troughcolor='orangeRed',          # 设置轨道的背景色
+                            variable=self.var_b,              # 设置绑定变量
+                            sliderlength=12,                  # 设置滑块的长度
+                            sliderrelief=tk.FLAT,             # 设置滑块的立体样式
+                            tickinterval=10,                  # 设置指示刻度细分
+                            resolution=1,                     # 设置步长
+                            bg='LavenderBlush',               # 设置背景颜色
+                            command=self.set_var_b)           # 设置绑定事件处理，函数或方法
+        self.sc2.place(x=1000, y=100)
+        self.sc2.set(30)
         
-        # self.r1 = tk.Radiobutton(frame, text='Suck', variable=self.var, value='Suck', bg='forestgreen', command=self.airpump)
-        # self.r2 = tk.Radiobutton(frame, text='Blow', variable=self.var, value='Blow', bg='forestgreen', command=self.airpump)
-        # self.r3 = tk.Radiobutton(frame, text='Stop', variable=self.var, value='Stop', bg='forestgreen', command=self.airpump)
-        # self.r1.place(x=555, y=580)
-        # self.r2.place(x=625, y=580)
-        # self.r3.place(x=695, y=580)
+        self.var_c = tk.IntVar()
+        self.sc3 = tk.Scale(frame, 
+                            label='c',                        # 设置标签内容
+                            from_=1,                          # 设置最大值
+                            to=100,                           # 设置最小值
+                            orient=tk.HORIZONTAL,             # 设置水平方向
+                            length=200,                       # 设置轨道的长度
+                            width=10,                         # 设置轨道的宽度
+                            showvalue=True,                   # 设置显示当前值
+                            troughcolor='orangeRed',          # 设置轨道的背景色
+                            variable=self.var_c,              # 设置绑定变量
+                            sliderlength=12,                  # 设置滑块的长度
+                            sliderrelief=tk.FLAT,             # 设置滑块的立体样式
+                            tickinterval=10,                  # 设置指示刻度细分
+                            resolution=1,                     # 设置步长
+                            bg='LavenderBlush',               # 设置背景颜色
+                            command=self.set_var_c)           # 设置绑定事件处理，函数或方法
+        self.sc3.place(x=1000, y=150)
+        self.sc3.set(30)
 
+        self.var_d = tk.IntVar()
+        self.sc4 = tk.Scale(frame, 
+                            label='d',                        # 设置标签内容
+                            from_=1,                          # 设置最大值
+                            to=100,                           # 设置最小值
+                            orient=tk.HORIZONTAL,             # 设置水平方向
+                            length=200,                       # 设置轨道的长度
+                            width=10,                         # 设置轨道的宽度
+                            showvalue=True,                   # 设置显示当前值
+                            troughcolor='orangeRed',          # 设置轨道的背景色
+                            variable=self.var_d,              # 设置绑定变量
+                            sliderlength=12,                  # 设置滑块的长度
+                            sliderrelief=tk.FLAT,             # 设置滑块的立体样式
+                            tickinterval=10,                  # 设置指示刻度细分
+                            resolution=1,                     # 设置步长
+                            bg='LavenderBlush',               # 设置背景颜色
+                            command=self.set_var_d)           # 设置绑定事件处理，函数或方法
+        self.sc4.place(x=1000, y=200)
+        self.sc4.set(16)
+        
+        self.var_e = tk.IntVar()
+        self.sc5 = tk.Scale(frame, 
+                            label='e',                        # 设置标签内容
+                            from_=1,                          # 设置最大值
+                            to=100,                           # 设置最小值
+                            orient=tk.HORIZONTAL,             # 设置水平方向
+                            length=200,                       # 设置轨道的长度
+                            width=10,                         # 设置轨道的宽度
+                            showvalue=True,                   # 设置显示当前值
+                            troughcolor='orangeRed',          # 设置轨道的背景色
+                            variable=self.var_e,           # 设置绑定变量
+                            sliderlength=12,                  # 设置滑块的长度
+                            sliderrelief=tk.FLAT,             # 设置滑块的立体样式
+                            tickinterval=10,                  # 设置指示刻度细分
+                            resolution=1,                     # 设置步长
+                            bg='LavenderBlush',               # 设置背景颜色
+                            command=self.set_var_e)           # 设置绑定事件处理，函数或方法
+        self.sc5.place(x=1000, y=250)
+        self.sc5.set(19)
 
-        # 添加菜单
-        menubar = tk.Menu(master)
-        filemenu = tk.Menu(menubar, tearoff=0)
-        menubar.add_cascade (label='File', menu=filemenu)
+    def set_var_a(self, v):
+        self.var_a.set(v)
+    def set_var_b(self, v):
+        self.var_b.set(v)
+    def set_var_c(self, v):
+        self.var_c.set(v)
+    def set_var_d(self, v):
+        self.var_d.set(v)
+    def set_var_e(self, v):
+        self.var_e.set(v)
 
-        filemenu.add_separator ()
-        filemenu.add_command (label='Exit', command=master.quit)
-        master.config (menu=menubar)
+    def on_mouse(self, event, x, y, flags, param):
+        img2 = self.img.copy()
+        if event == cv2.EVENT_LBUTTONDOWN:         #左键点击
+            point = (x, y)
+            self.__points.append(point)
+            self.__num += 1
+            # print(num)
+            for p in self.__points:
+                cv2.circle(img2, p, 2, (0,255,0), 5)
+            cv2.imshow('image_get_4_points', img2)
+            if self.__num == 4:
+                print(self.__points)
+                self.__num = 0
+                perTrans(self.img, self.__points, is_show=True)
+                
+                # 存入四个点的坐标数据
+                file_data = ''
+                with open(r".\vision\vision_layout\config.py", "r", encoding='utf-8') as f:
+                    if point[0] < 130:
+                        self.__points_a = self.__points[:]
+                        for line in f:
+                            if 'POS_STORE_A' in line:
+                                new_line = "POS_STORE_A = " + str(self.__points) + '\n'
+                                line = new_line
+                            file_data += line
+                    elif point[0] < 550:
+                        for line in f:
+                            # print(line)
+                            if 'POS_BOARD' in line:
+                                new_line = "POS_BOARD = " + str(self.__points) + '\n'
+                                line = new_line
+                            file_data += line
+                    else:
+                        self.__points_b = self.__points[:]
+                        for line in f:
+                            # print(line)
+                            if 'POS_STORE_B' in line:
+                                new_line = "POS_STORE_B = " + str(self.__points) + '\n'
+                                line = new_line
+                            file_data += line
+                with open(r".\vision\vision_layout\config.py", "w", encoding="utf-8") as f:
+                    f.write(file_data)
+                    print("ok")
+                    f.close()
+                
+                self.__points.clear()
 
-    # def airpump(self):
-    #     self.label.config(text="AIR PUMP: "+self.var.get())
-    #     if self.var.get() == "Suck":
-    #         # print("Suck")
-    #         self.armbot.go_air_pump(signal=config.PUMP_SUCK)
-    #     elif self.var.get() == "Blow":
-    #         self.armbot.go_air_pump(signal=config.PUMP_BLOW)
-    #     elif self.var.get() == "Stop":
-    #         self.armbot.go_air_pump(signal=config.PUMP_STOP)
+    def recognize_chess(self, img, circles_list):
+        res = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+        for circle in circles_list:
+            # 计算位置id
+            x, y = int(circle[0]), int(circle[1])
+            id_x = 1 if x > 50 else 0
+            id_y = int(y//50) 
 
-    # def set_speed(self, v):
-    #     print("speed set ", v)
-    #     self.armbot.speed = v
+            img_sub = img[y-14:y+14, x-14:x+14, :]
+            # print("img_sub", img_sub)
+            # if len(img_sub) == 0:
+            #     print("img_sub", img_sub)
+            #     return res
+            img_path = ".\\vision\\roc.jpg"
+            cv2.imwrite(img_path, img_sub)
 
-    # def servo1_to_pos(self, value1):
-    #     print("servo1 to ", value1)
-    #     self.armbot.one_servo_to_pos(servo_id=1, servo_pos=int(value1))
+            ret, score = self.ident.chessidentify(img_path)
+            # cv2.imwrite(".\\vision\\data\\"+str(ret)+"\\"+str(time.time())+".jpg", img_sub)
 
-    # def servo2_to_pos(self, value2):
-    #     print("servo2 to ", value2)
-    #     self.armbot.one_servo_to_pos(servo_id=2, servo_pos=int(value2))
+            # res[id_x*8 + id_y] = (ret, score)
+            res[id_x*8 + id_y] = ret
+        return res
 
-    # def servo3_to_pos(self, value3):
-    #     print("servo3 to ", value3)
-    #     self.armbot.one_servo_to_pos(servo_id=3, servo_pos=int(value3))
+    def do_recognize_chess(self):
+        self.flag_recognize_chess = True
 
+    def video_loop(self):
+        success, self.img = self.cam.read()  # 从摄像头读取照片
+        if success:
+            cv2image = cv2.cvtColor(self.img, cv2.COLOR_BGR2RGBA) # 转换颜色从BGR到RGBA
+            current_image = Image.fromarray(cv2image)        # 将图像转换成Image对象
+            imgtk = ImageTk.PhotoImage(image=current_image)
+            self.panel.imgtk = imgtk
+            self.panel.config(image=imgtk)
 
+            # 棋盘位置校准
+            if self.flag_get_points:
+                cv2.namedWindow('image_get_4_points')
+                cv2.setMouseCallback('image_get_4_points', self.on_mouse)
+                # 如果没有点点就动态显示
+                if len(self.__points) == 0:
+                    cv2.imshow('image_get_4_points', self.img)
+                cv2.waitKey(1)
+
+            # 显示存子位置
+            else:
+                img_a = perTrans(self.img, self.__points_a)
+                img_b = perTrans(self.img, self.__points_b)
+                # cv2窗口显示
+                # cv2.imshow('image_a', img_a)
+                # cv2.imshow('image_b', img_b)
+                # cv2.waitKey(1)
+                img_a_c, circles_a = find_circles(img_a,
+                                                  minDist=int(self.var_a.get()),
+                                                  param1=int(self.var_b.get()),
+                                                  param2=int(self.var_c.get()),
+                                                  minRadius=int(self.var_d.get()),
+                                                  maxRadius=int(self.var_e.get()))
+                img_b_c, circles_b = find_circles(img_b,
+                                                  minDist=int(self.var_a.get()),
+                                                  param1=int(self.var_b.get()),
+                                                  param2=int(self.var_c.get()),
+                                                  minRadius=int(self.var_d.get()),
+                                                  maxRadius=int(self.var_e.get()))
+                if self.flag_recognize_chess:
+                    self.flag_recognize_chess = False
+                    t1 = time.time()
+                    alist_a = self.recognize_chess(img_a, circles_a)
+                    alist_b = self.recognize_chess(img_b, circles_b)
+                    alist = alist_a + alist_b
+                    print(alist)
+                    print("use time:", time.time()-t1)
+                    self.var_r1.set(str(alist_a))
+                    self.lb1.config(text=self.var_r1.get())
+                    self.var_r2.set(str(alist_b))
+                    self.lb2.config(text=self.var_r2.get())
+
+                # GUI窗口显示
+                cv2image = cv2.cvtColor(img_a_c, cv2.COLOR_BGR2RGBA) # 转换颜色从BGR到RGBA
+                current_image = Image.fromarray(cv2image)        # 将图像转换成Image对象
+                imgtk = ImageTk.PhotoImage(image=current_image)
+                self.panel_a.imgtk = imgtk
+                self.panel_a.config(image=imgtk)
+            
+                cv2image = cv2.cvtColor(img_b_c, cv2.COLOR_BGR2RGBA) # 转换颜色从BGR到RGBA
+                current_image = Image.fromarray(cv2image)        # 将图像转换成Image对象
+                imgtk = ImageTk.PhotoImage(image=current_image)
+                self.panel_b.imgtk = imgtk
+                self.panel_b.config(image=imgtk)
+
+            self.after(1, self.video_loop)
+
+    # TODO@libing: 不点点或者四个点都点完，否则会有问题
+    def do_get_points(self):
+        self.flag_get_points = False if self.flag_get_points else True
+        # print("flag_get_points:", self.flag_get_points)
+        if not self.flag_get_points:
+            cv2.destroyWindow('image_get_4_points')
+
+    def start(self):
+        self.video_loop()
 
 
 if __name__ == "__main__":
     root = tk.Tk()
-    root.title("Serial GUI")
-    root.geometry("840x730")
+    root.title("Vision GUI")
+    root.geometry("1200x675")
+    root.resizable(0,0) # 防止窗口大小调整
     app = GUI(root)
+    app.start()
     root.mainloop()
-
-
-
