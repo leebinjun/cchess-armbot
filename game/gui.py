@@ -54,8 +54,6 @@
             plt.plot (data_list)  # 将list传入plot画图
             plt.pause (0.01)  # 这个为停顿0.01s，能得到产生实时的效果
  
-<<<<<<< Updated upstream
-=======
 
 import Tkinter as tk
 
@@ -63,4 +61,3 @@ import Tkinter as tk
 
 root = tk.TK()
 root.geometry()
->>>>>>> Stashed changes

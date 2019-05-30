@@ -15,7 +15,7 @@ class Armbot(ComThread):
             cls._instance = ComThread.__new__(cls, *args, **kw)
         return cls._instance
     
-    def __init__(self, port = 'COM7'):
+    def __init__(self, port = 'COM6'):
         super(Armbot, self).__init__()
         self.port = port
         self.dict_servo = {1:1467, 2:1500, 3:1400, 4:1500, 5:1500}
@@ -150,7 +150,5 @@ if __name__ == '__main__':
             input_new_y = int(input('input the new_y:'))
             alist = [input_new_x, input_new_y, input_last_x, input_last_y]
             myarm.move(alist)
-
-
 
 
