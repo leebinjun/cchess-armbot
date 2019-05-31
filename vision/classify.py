@@ -1,12 +1,17 @@
+import sys,os
+sys.path.append(r".\vision")
+
 from PIL import Image
 from matplotlib.pylab import *
 import numpy as np
 import argparse
 import tensorflow as tf
 import time
-import os
 
-from vision.utils import find_circles
+import cv2
+import config
+from utils import find_circles
+from utils import perTrans
  
 w = 28
 h = 28
@@ -22,7 +27,7 @@ class Classify():
             cls._instance = super(Classify, cls).__new__(cls, *args, **kw)
         return cls._instance
 
-    def __init__(self, model_dir = './vision/classify_chess/model/model.ckpt', is_show=False):
+    def __init__(self, model_dir = './vision/03_classify_chess/model/model.ckpt', is_show=False):
         if is_show:
             print("载入模型")
             print("start time:", time.time())
@@ -57,10 +62,8 @@ class Classify():
 
             return self.classes[index], prediction[0][index]
 
-    def recognize_chess(self, img, is_save=False):
-        # get circle_list
-        _, circles_list = find_circles(img, 40, 30, 16, 19)
-        
+    # 输入透射变换后图像，识别存子区域棋子放置情况
+    def recognize_chess(self, img, circles_list, is_save=False):
         res = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
         for circle in circles_list:
             # 计算位置id
@@ -85,28 +88,56 @@ class Classify():
         return res
 
 
+    # 输入整张图片，识别存子区域棋子放置情况
+    def recognize_chess_list(self, img, is_save=False, is_show=False):
+        
+        points_a = config.POS_STORE_A  
+        points_b = config.POS_STORE_B
+
+        img_a = perTrans(img, points_a)
+        img_b = perTrans(img, points_b)
+        if is_show:
+            cv2.imshow('image_a', img_a)
+            cv2.imshow('image_b', img_b)
+            cv2.waitKey(1)
+
+        _, circles_a = find_circles(img_a, config.minDist, config.param1, config.param2, config.minRadius, config.maxRadius)
+        _, circles_b = find_circles(img_b, config.minDist, config.param1, config.param2, config.minRadius, config.maxRadius)
+
+        alist_a = self.recognize_chess(img_a, circles_a, is_save=is_save)
+        alist_b = self.recognize_chess(img_b, circles_b, is_save=is_save)
+        alist = alist_a + alist_b
+
+        return alist
+
+        
+
+
 
 if __name__ == '__main__':
-    img_list = [r".\vision\classify_chess\data\10\0005.jpg",
-                r".\vision\classify_chess\data\11\0005.jpg",
-                r".\vision\classify_chess\data\20\0005.jpg",
-                r".\vision\classify_chess\data\21\0005.jpg",
-                r".\vision\classify_chess\data\30\0005.jpg",
-                r".\vision\classify_chess\data\31\0005.jpg",
-                r".\vision\classify_chess\data\40\0005.jpg",
-                r".\vision\classify_chess\data\41\0005.jpg",
-                r".\vision\classify_chess\data\50\0005.jpg",
-                r".\vision\classify_chess\data\51\0005.jpg",
-                r".\vision\classify_chess\data\60\0005.jpg",
-                r".\vision\classify_chess\data\61\0005.jpg",
-                r".\vision\classify_chess\data\70\0005.jpg",
-                r".\vision\classify_chess\data\71\0005.jpg"]
+    img_list = [r".\vision\03_classify_chess\data\10\0005.jpg",
+                r".\vision\03_classify_chess\data\11\0005.jpg",
+                r".\vision\03_classify_chess\data\20\0005.jpg",
+                r".\vision\03_classify_chess\data\21\0005.jpg",
+                r".\vision\03_classify_chess\data\30\0005.jpg",
+                r".\vision\03_classify_chess\data\31\0005.jpg",
+                r".\vision\03_classify_chess\data\40\0005.jpg",
+                r".\vision\03_classify_chess\data\41\0005.jpg",
+                r".\vision\03_classify_chess\data\50\0005.jpg",
+                r".\vision\03_classify_chess\data\51\0005.jpg",
+                r".\vision\03_classify_chess\data\60\0005.jpg",
+                r".\vision\03_classify_chess\data\61\0005.jpg",
+                r".\vision\03_classify_chess\data\70\0005.jpg",
+                r".\vision\03_classify_chess\data\71\0005.jpg"]
+    ident = Classify()
     for img_path in img_list:
-        ident = Classify()
         ret, score = ident.chessidentify(img_path)
         print("ret:", ret, score)
-
-
+    
+    img_filepath = r"C:\Users\Administrator\Desktop\cchess-armbot\test1559289739.3877587.jpg"
+    img = cv2.imread(img_filepath, 1)
+    ret = ident.recognize_chess_list(img)
+    print(ret)
     # ident = Classify()
     # for root,dirs,files in os.walk('./vision/classify_chess/data/'):
     #     for file in files:

@@ -1,6 +1,5 @@
 import sys,os
 sys.path.append(os.path.dirname(__file__) + os.sep + '../')
-sys.path.append(r".\vision\vision_layout")
 
 import cv2
 import numpy as np
