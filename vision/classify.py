@@ -5,6 +5,8 @@ import argparse
 import tensorflow as tf
 import time
 import os
+
+from vision.utils import find_circles
  
 w = 28
 h = 28
@@ -55,6 +57,32 @@ class Classify():
 
             return self.classes[index], prediction[0][index]
 
+    def recognize_chess(self, img, is_save=False):
+        # get circle_list
+        _, circles_list = find_circles(img, 40, 30, 16, 19)
+        
+        res = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+        for circle in circles_list:
+            # 计算位置id
+            x, y = int(circle[0]), int(circle[1])
+            id_x = 1 if x > 50 else 0
+            id_y = int(y//50) 
+
+            img_sub = img[y-14:y+14, x-14:x+14, :]
+            # print("img_sub", img_sub)
+            # if len(img_sub) == 0:
+            #     print("img_sub", img_sub)
+            #     return res
+            img_path = ".\\vision\\roc.jpg"
+            cv2.imwrite(img_path, img_sub)
+
+            ret, score = self.chessidentify(img_path)
+            if is_save:
+                cv2.imwrite(".\\vision\\data\\"+str(ret)+"\\"+str(time.time())+".jpg", img_sub)
+
+            # res[id_x*8 + id_y] = (ret, score)
+            res[id_x*8 + id_y] = ret
+        return res
 
 
 
