@@ -119,7 +119,6 @@ class Armbot(ComThread):
             print("move done.")
 
 
-
 if __name__ == '__main__':
     myarm = Armbot()
     temp_a = 0
@@ -144,8 +143,8 @@ if __name__ == '__main__':
             myarm.go_to_pos(input_x, input_y, input_z)
             
         elif temp_a == 9:
-            input_last_x = int(input('input the last_x:'))
-            input_last_y = int(input('input the last_y:'))
+            input_last_x = float(input('input the last_x:'))
+            input_last_y = float(input('input the last_y:'))
             input_new_x = int(input('input the new_x:'))
             input_new_y = int(input('input the new_y:'))
             alist = [input_new_x, input_new_y, input_last_x, input_last_y]
