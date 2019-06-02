@@ -4,7 +4,7 @@ import math
 
 def model_pre(x, y):
     x, y = x-4, y-0  #相对机械臂原点坐标
-    x, y = 20*x, 20*y+125
+    x, y = 20*x-5, 20*y+125
     dl = math.sqrt(x**2 + y**2)-60
     theta = math.atan2(x, y)*180/math.pi
     print('theta:', theta)

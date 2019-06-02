@@ -5,7 +5,7 @@ sys.path.append(r".\armbot")
 
 from com import ComThread
 from model import model_pre, model_solve
-import config
+import config_a
 
 class Armbot(ComThread):
 
@@ -19,7 +19,7 @@ class Armbot(ComThread):
         super(Armbot, self).__init__()
         self.port = port
         self.dict_servo = {1:1467, 2:1500, 3:1400, 4:1500, 5:1500}
-        self.speed = config.SPEEDRATE
+        self.speed = config_a.SPEEDRATE
         self.start()
 
     # servo
@@ -89,17 +89,17 @@ class Armbot(ComThread):
         # if capture:
         #     idx = self.pieceboard_id
         #     self.pieceboard_id += 1
-        #     (x, y) = config.CHESSBOARD[new_id]
+        #     (x, y) = config_a.CHESSBOARD[new_id]
         #     pos = (x, y, 135)
         #     self.go_door_move( 30, pos)
         #     self.isMoveOver(x, y, 135, 1)
-        #     self.go_air_pump(config.PUMP_SUCK)
+        #     self.go_air_pump(config_a.PUMP_SUCK)
         #     time.sleep(0.5)
-        #     (x, y) = config.PIECEBOARD[idx]
+        #     (x, y) = config_a.PIECEBOARD[idx]
         #     pos = (x, y, 132)
         #     self.go_door_move( 30, pos)
         #     self.isMoveOver(x, y, 132, 1)
-        #     self.go_air_pump(config.PUMP_STOP)
+        #     self.go_air_pump(config_a.PUMP_STOP)
 
         self.go_to_pos(last_x, last_y, z=10)
         time.sleep(0.5)
@@ -113,8 +113,10 @@ class Armbot(ComThread):
         time.sleep(1)
         self.go_air_pump(signal=2)
         time.sleep(1)
-        self.go_air_pump(signal=0)
+        # self.go_air_pump(signal=0)
         self.go_ready()
+        time.sleep(1)
+        self.go_air_pump(signal=0)
         if isShow:
             print("move done.")
 
@@ -125,7 +127,7 @@ if __name__ == '__main__':
     while(temp_a != 99):
         temp_a = int(input('input the action:'))
         if temp_a == 1:
-            myarm.reset_all_servo()
+            myarm.go_ready()
         elif temp_a == 5:
             input_x = int(input('input the id:'))
             input_y = int(input('input the pos:'))
@@ -137,8 +139,8 @@ if __name__ == '__main__':
             input_s = int(input('input the signal:'))
             myarm.go_air_pump(input_s)
         elif temp_a == 7:
-            input_x = int(input('input the x:'))
-            input_y = int(input('input the y:'))
+            input_x = float(input('input the x:'))
+            input_y = float(input('input the y:'))
             input_z = int(input('input the z:'))
             myarm.go_to_pos(input_x, input_y, input_z)
             
