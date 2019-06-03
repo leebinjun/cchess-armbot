@@ -7,7 +7,9 @@ import numpy as np
 
 from armbot.robot import Armbot
 from vision.classify import Classify
-from strategy.cyclone.cyclone_strategy import StrategyCyclone 
+# from strategy.cyclone.cyclone_strategy import StrategyCyclone 
+from strategy.alphazero.cchess_alphazero.mytest2 import StrategyAlphaZero
+
 
 # 由局面board生成ucci通信局面描述字符串
 def board_to_situation(board: np.int8):
@@ -60,7 +62,7 @@ def update_board( move, board: np.int8, isShow = False):
 if __name__ == "__main__":
 
     ident = Classify()
-    chessai = StrategyCyclone()
+    chessai = StrategyAlphaZero()
     armbot = Armbot()
     armbot.go_ready()
 
@@ -96,7 +98,7 @@ if __name__ == "__main__":
             # 机械臂下棋
             alist, flag_capture = update_board(move, board = ret_chess)
             print(f"list: {alist}")
-            # armbot.move(alist, capture = flag_capture, isShow=True)
+            armbot.move(alist, capture = flag_capture, isShow=True)
 
         if ch == ord('r') :
             t1 = time.time()

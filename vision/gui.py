@@ -300,7 +300,7 @@ class GUI(Frame):
                                                   param2=int(self.var_c.get()),
                                                   minRadius=int(self.var_d.get()),
                                                   maxRadius=int(self.var_e.get()))
-                # 考虑存子区域没有棋子(没有找到圆)的情况
+                # 考虑存子区域没有棋子没有找到圆)的情况
                 if (self.flag_recognize_chess 
                    and type(circles_a) is not None.__class__ 
                    and type(circles_b) is not None.__class__): 
