@@ -100,11 +100,7 @@ class PlayWithHuman:
         self.load_model()
         self.pipe = self.model.get_pipes()
         self.ai = CChessPlayer(self.config, search_tree=defaultdict(VisitState), pipes=self.pipe,
-<<<<<<< HEAD
                               enable_resign=True, debugging=False)
-=======
-                              enable_resign=True, debugging=True)
->>>>>>> 9efbc5a8e47acdebe05dbaa64e95c28d788246ca
         self.human_move_first = human_first
 
         pygame.init()

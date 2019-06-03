@@ -72,6 +72,7 @@ def rlist_to_nlist(alist: list):
         nlist.append(ret) 
     return nlist
 
+# 布局
 def do_layout(armbot: Armbot, ret_list: list, init_board = None):
     from armbot import config_a
     
@@ -136,6 +137,29 @@ def do_layout(armbot: Armbot, ret_list: list, init_board = None):
                     armbot.move(alist)
                     time.sleep(2)
 
+# 判断对手是否在下棋
+def is_hand(img, bs, es):
+    while True:
+        frame_lwpCV = img
+        fgmask = bs.apply(frame_lwpCV) # 背景分割器，该函数计算了前景掩码
+        # 二值化阈值处理，前景掩码含有前景的白色值以及阴影的灰色值，在阈值化图像中，将非纯白色（244~255）的所有像素都设为0，而不是255
+        th = cv2.threshold(fgmask.copy(), 244, 255, cv2.THRESH_BINARY)[1]
+        # 下面就跟基本运动检测中方法相同，识别目标，检测轮廓，在原始帧上绘制检测结果
+        dilated = cv2.dilate(th, es, iterations=2) # 形态学膨胀
+        image, contours, hierarchy = cv2.findContours(dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE) # 该函数计算一幅图像中目标的轮廓
+        # rasp
+        # contours, hierarchy = cv2.findContours(dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE) # 该函数计算一幅图像中目标的轮廓
+        a = 0
+        for c in contours:
+            a += cv2.contourArea(c)
+        print(a)
+        if a > 1000:
+            return True
+        else:
+            return False
+        # cv2.imshow('mog', fgmask)
+        # cv2.imshow('thresh', th)
+        # cv2.imshow('detection', frame_lwpCV)
 
 if __name__ == "__main__":
 
@@ -147,6 +171,8 @@ if __name__ == "__main__":
     cap = cv2.VideoCapture(0)
     ret,img = cap.read()
     
+    bs = cv2.createBackgroundSubtractorKNN(detectShadows=True)
+    es = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
     
     while ret is True:
         cv2.imshow("test",img)
@@ -170,23 +196,28 @@ if __name__ == "__main__":
             while not is_end:
                 ret_chess_old = ident.recognize_chess_list_t(img)
                 n_zero_old = np.count_nonzero(ret_chess_old)
+                print(f"ret_chess_old: \n {ret_chess_old}")
                 is_update = False
-                ch = cv2.waitKey(3)
+                ch = cv2.waitKey(1000)
+                while(is_hand(img, bs, es)):
+                    ret, img = cap.read() 
+                    ch = cv2.waitKey(5)
                 while not is_update:
                     cv2.imshow("test",img)
                     ret, img = cap.read() 
-                    ch = cv2.waitKey(3)
+                    ch = cv2.waitKey(2)
                     if ch == ord('q') :
                         break
-                    ret_chess_new = ident.recognize_chess_list_t(img)
-                    print(n_zero_old)
-                    print(np.count_nonzero(ret_chess_new))
-                    if np.count_nonzero(ret_chess_new) != n_zero_old or np.count_nonzero(ret_chess_new) != n_zero_old-1:
-                        if np.count_nonzero(ret_chess_new - ret_chess_old) == 2:
-                            # print(ret_chess_new)
-                            is_update = True
-                        else:
-                            print(ret_chess_new)
+                    if is_hand(img, bs, es):
+                        while(is_hand(img, bs, es)):
+                            cv2.imshow("test",img)
+                            ret, img = cap.read() 
+                            cv2.waitKey(3)
+                            ret_chess_new = ident.recognize_chess_list_t(img)
+                            # print(f"\rn1: {n_zero_old} n2:{np.count_nonzero(ret_chess_new)}", end='')
+                            if np.count_nonzero(ret_chess_new) == n_zero_old or np.count_nonzero(ret_chess_new) == n_zero_old-1:
+                                if np.count_nonzero(ret_chess_new - ret_chess_old) == 2:
+                                    is_update = True
                         
                 fen = board_to_situation(ret_chess_new)
                 print(f"fen: {fen}")
@@ -196,12 +227,23 @@ if __name__ == "__main__":
                 # 机械臂下棋
                 alist, flag_capture = update_board(move, board = ret_chess_new)
                 print(f"list: {alist}")
+                
+                ret, img = cap.read()
+                cv2.imshow("test",img)
+
                 armbot.move(alist, capture = flag_capture, isShow=True)
+
+                print("hererere")
+                ret, img = cap.read()
+                ret, img = cap.read()
+                ret, img = cap.read()
+                cv2.imshow("test",img)
+                ch = cv2.waitKey(1000)
 
         if ch == ord('r') :
             t1 = time.time()
             ret_chess = ident.recognize_chess_list_t(img, is_save=True)
-            print(f"use tiem: {time.time() - t1}")
+            print(f"use tiem: {time.time() - t1}", end='')
             print(ret_chess)
         
 
