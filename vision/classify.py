@@ -18,6 +18,8 @@ w = 28
 h = 28
 c = 3
 
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
+
 class Classify():
     
     _instance = None
@@ -35,33 +37,35 @@ class Classify():
         # Restore model
         self.saver = tf.train.import_meta_graph(model_dir+".meta")
         self.model_dir = model_dir
+        self.sess = tf.Session() 
+        self.saver.restore(self.sess, self.model_dir)
         if is_show:
             print("end time:", time.time())
 
     # 输入棋子（28*28）照片，输出棋子类型
     def chessidentify(self, filename, is_show = False):
-        with tf.Session() as sess:
-            self.saver.restore(sess, self.model_dir)
-            x = tf.get_default_graph().get_tensor_by_name("images:0")
-            keep_prob = tf.get_default_graph().get_tensor_by_name("keep_prob:0")
-            y = tf.get_default_graph().get_tensor_by_name("fc2/output:0")
+        # with tf.Session() as sess:
+        # self.saver.restore(sess, self.model_dir)
+        x = tf.get_default_graph().get_tensor_by_name("images:0")
+        keep_prob = tf.get_default_graph().get_tensor_by_name("keep_prob:0")
+        y = tf.get_default_graph().get_tensor_by_name("fc2/output:0")
 
-            # Read image
-            pil_im = array(Image.open(filename).convert('RGB').resize((w,h)),dtype=float32)
-            #pil_im = (255-pil_im)/255.0
-            pil_im = pil_im.reshape((1,w*h*c))
-        
-            time1 = time.time()
-            # print("pil_im:", pil_im)
-            prediction = sess.run(y, feed_dict={x:pil_im,keep_prob: 1.0})
-            index = np.argmax(prediction)
-            time2 = time.time()
-            if is_show:
-                print("The classes is: %s. (the probability is %g)" % (self.classes[index], prediction[0][index]))
-                
-                print("Using time %g" % (time2-time1))
+        # Read image
+        pil_im = array(Image.open(filename).convert('RGB').resize((w,h)),dtype=float32)
+        #pil_im = (255-pil_im)/255.0
+        pil_im = pil_im.reshape((1,w*h*c))
+    
+        time1 = time.time()
+        # print("pil_im:", pil_im)
+        prediction = self.sess.run(y, feed_dict={x:pil_im, keep_prob: 1.0})
+        index = np.argmax(prediction)
+        time2 = time.time()
+        if is_show:
+            print("The classes is: %s. (the probability is %g)" % (self.classes[index], prediction[0][index]))
+            
+            print("Using time %g" % (time2-time1))
 
-            return self.classes[index], prediction[0][index]
+        return self.classes[index], prediction[0][index]
 
     # 输入透射变换后图像，识别存子区域棋子放置情况
     def recognize_chess(self, img, circles_list, is_save=False):

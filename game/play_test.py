@@ -7,7 +7,11 @@ import numpy as np
 
 from armbot.robot import Armbot
 from vision.classify import Classify
-from strategy.cyclone.cyclone_strategy import StrategyCyclone 
+# from strategy.cyclone.cyclone_strategy import StrategyCyclone 
+from strategy.alphazero.cchess_alphazero.mytest2 import StrategyAlphaZero
+
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 # 由局面board生成ucci通信局面描述字符串
 def board_to_situation(board: np.int8):
@@ -56,11 +60,61 @@ def update_board( move, board: np.int8, isShow = False):
 
     return [new_y, new_x, last_y, last_x], flag_capture
 
+def do_layout(armbot: Armbot, ret_list: list, init_board = None):
+    from armbot import config_a
+    from collections import defaultdict
+    dict_v = defaultdict(list)
+    for i, v in enumerate(ret_list):
+        dict_v[v].append(i)
+    print(dict_v)
+    
+    if init_board == None: #正常开局
+        for idx in dict_v:
+            for i, v in enumerate(dict_v[idx]):
+                x_last, y_last = config_a.POS_STORE_LIST[v]
+                x_new, y_new = config_a.POS_INIT_DICT[idx][i]
+                print(f"move: idx:{idx}, ({x_last},{y_last}) to ({x_new}, {y_new})")
+                alist = [x_new, y_new, x_last, y_last]
+                armbot.move(alist)
+                a = input()
+    else:
+        # "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR"
+        pos_str = init_board.replace('/','')
+        pos_str = pos_str.replace('9','111111111')
+        pos_str = pos_str.replace('8','11111111')
+        pos_str = pos_str.replace('7','1111111')
+        pos_str = pos_str.replace('6','111111')
+        pos_str = pos_str.replace('5','11111')
+        pos_str = pos_str.replace('4','1111')
+        pos_str = pos_str.replace('3','111')
+        pos_str = pos_str.replace('2','11')
+        # 'rnbakabnr1111111111c11111c1p1p1p1p1p111111111111111111P1P1P1P1P1C11111C1111111111RNBAKABNR'
+        from collections import defaultdict
+        dict_pos = defaultdict(list)
+        for i, v in enumerate(pos_str):
+            dict_pos[v].append((i//9, i%9))
+        
+        print(f"dict_pos: {dict_pos}")
+        print(f"dict_v: {dict_v}")
+
+
+        for idx in dict_pos:
+            if idx != '1':
+                for i, v in enumerate(dict_pos[idx]):
+                    xx = dict_v[idx][i]
+                    x_last, y_last = config_a.POS_STORE_LIST[xx]
+                    x_new, y_new = v
+                    print(f"move: idx:{idx}, ({x_last},{y_last}) to ({x_new}, {y_new})")
+                    alist = [x_new, y_new, x_last, y_last]
+                    armbot.move(alist)
+                    a = input()
+
+
 
 if __name__ == "__main__":
 
     ident = Classify()
-    chessai = StrategyCyclone()
+    chessai = StrategyAlphaZero()
     armbot = Armbot()
     armbot.go_ready()
 
@@ -81,7 +135,7 @@ if __name__ == "__main__":
                 print(alist_ret[8:16])
                 print(alist_ret[16:24])
                 print(alist_ret[24:])
-            do_layout( armbot, alist_ret)
+            do_layout(armbot, alist_ret, init_board="4k4/9/9/9/9/9/9/9/9/9")
 
         if ch == ord('w') :
             t1 = time.time()
@@ -96,7 +150,7 @@ if __name__ == "__main__":
             # 机械臂下棋
             alist, flag_capture = update_board(move, board = ret_chess)
             print(f"list: {alist}")
-            # armbot.move(alist, capture = flag_capture, isShow=True)
+            armbot.move(alist, capture = flag_capture, isShow=True)
 
         if ch == ord('r') :
             t1 = time.time()
