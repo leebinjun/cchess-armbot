@@ -1,5 +1,8 @@
 import os
+<<<<<<< HEAD
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+=======
+>>>>>>> 9efbc5a8e47acdebe05dbaa64e95c28d788246ca
 import sys
 import multiprocessing as mp
     
@@ -49,8 +52,11 @@ from cchess_alphazero.config import Config, PlayWithHumanConfig
 
 logger = getLogger(__name__)
 
+<<<<<<< HEAD
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
+=======
+>>>>>>> 9efbc5a8e47acdebe05dbaa64e95c28d788246ca
 CMD_LIST = ['self', 'opt', 'eval', 'play', 'eval', 'sl', 'ob']
 PIECE_STYLE_LIST = ['WOOD', 'POLISH', 'DELICATE']
 BG_STYLE_LIST = ['CANVAS', 'DROPS', 'GREEN', 'QIANHONG', 'SHEET', 'SKELETON', 'WHITE', 'WOOD']
@@ -141,7 +147,11 @@ class StrategyAlphaZero:
     play.load_model()
     play.pipe = play.model.get_pipes()
     play.ai = CChessPlayer(play.config, search_tree=defaultdict(VisitState), pipes=play.pipe,
+<<<<<<< HEAD
                            enable_resign=False, debugging=False)
+=======
+                           enable_resign=True, debugging=True)
+>>>>>>> 9efbc5a8e47acdebe05dbaa64e95c28d788246ca
     human_first = not args.ai_move_first
     play.human_move_first = human_first
 

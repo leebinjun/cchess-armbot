@@ -10,8 +10,11 @@ from vision.classify import Classify
 # from strategy.cyclone.cyclone_strategy import StrategyCyclone 
 from strategy.alphazero.cchess_alphazero.mytest2 import StrategyAlphaZero
 
+<<<<<<< HEAD:game/play_test.py
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+=======
+>>>>>>> 9efbc5a8e47acdebe05dbaa64e95c28d788246ca:game/play_test.py
 
 # 由局面board生成ucci通信局面描述字符串
 def board_to_situation(board: np.int8):
