@@ -1,7 +1,7 @@
 import os
 import cv2
 
-path = "./data"
+path = "./vision/03_classify_chess/data"
 files = os.listdir(path) 
 # print(files)
 

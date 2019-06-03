@@ -3,7 +3,7 @@ sys.path.append(os.path.dirname(__file__) + os.sep + '../')
 
 import cv2
 import numpy as np
-import config
+import config_v
 import time
 
 # minDist = 40
@@ -51,6 +51,16 @@ def perTrans(img_src, points, is_show=False):
     ps_src = np.float32(points)
     mat_pers = cv2.getPerspectiveTransform(ps_src, ps_dst)
     img_dst = cv2.warpPerspective(img_src, mat_pers, (100,400))
+    if is_show:
+        cv2.imshow('rst_image', img_dst)
+    return img_dst
+
+# 透射变换 棋盘
+def perTrans_chess(img_src, points, is_show=False):
+    ps_dst = np.float32([[0,0],[0,499],[449, 0],[449,499]])
+    ps_src = np.float32(points)
+    mat_pers = cv2.getPerspectiveTransform(ps_src, ps_dst)
+    img_dst = cv2.warpPerspective(img_src, mat_pers, (450,500))
     if is_show:
         cv2.imshow('rst_image', img_dst)
     return img_dst

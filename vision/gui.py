@@ -13,9 +13,10 @@ from tkinter import Frame
 from PIL import Image
 from PIL import ImageTk
 
-import config
+import config_v
 from utils import find_circles
 from utils import perTrans
+from utils import perTrans_chess
 
 from classify import Classify 
 
@@ -29,8 +30,8 @@ class GUI(Frame):
 
         self.cam = cv2.VideoCapture(0)
         self.img = None
-        self.__points_a = config.POS_STORE_A  
-        self.__points_b = config.POS_STORE_B
+        self.__points_a = config_v.POS_STORE_A  
+        self.__points_b = config_v.POS_STORE_B
         self.__points = []  
         self.__num = 0
         self.flag_get_points = False       # 设置标志位 需要标点
@@ -69,7 +70,7 @@ class GUI(Frame):
         self.lb2.place(x=400, y=600)
 
         # 读找圆参数
-        a,b,c,d,e = config.minDist, config.param1, config.param2, config.minRadius, config.maxRadius
+        a,b,c,d,e = config_v.minDist, config_v.param1, config_v.param2, config_v.minRadius, config_v.maxRadius
 
         # 找圆形 参数条 
         self.var_a = tk.IntVar()
@@ -197,11 +198,17 @@ class GUI(Frame):
             if self.__num == 4:
                 print(self.__points)
                 self.__num = 0
-                perTrans(self.img, self.__points, is_show=True)
+
+                if 130 < point[0] < 550:
+                    # 棋盘
+                    perTrans_chess(self.img, self.__points, is_show=True)
+                else:
+                    # 存子区域
+                    perTrans(self.img, self.__points, is_show=True)
                 
                 # 存入四个点的坐标数据
                 file_data = ''
-                with open(r".\vision\config.py", "r", encoding='utf-8') as f:
+                with open(r".\vision\config_v.py", "r", encoding='utf-8') as f:
                     if point[0] < 130:
                         self.__points_a = self.__points[:]
                         for line in f:
@@ -224,7 +231,7 @@ class GUI(Frame):
                                 new_line = "POS_STORE_B = " + str(self.__points) + '\n'
                                 line = new_line
                             file_data += line
-                with open(r".\vision\config.py", "w", encoding="utf-8") as f:
+                with open(r".\vision\config_v.py", "w", encoding="utf-8") as f:
                     f.write(file_data)
                     print("ok")
                     f.close()
@@ -293,7 +300,10 @@ class GUI(Frame):
                                                   param2=int(self.var_c.get()),
                                                   minRadius=int(self.var_d.get()),
                                                   maxRadius=int(self.var_e.get()))
-                if self.flag_recognize_chess:
+                # 考虑存子区域没有棋子(没有找到圆)的情况
+                if (self.flag_recognize_chess 
+                   and type(circles_a) is not None.__class__ 
+                   and type(circles_b) is not None.__class__): 
                     self.flag_recognize_chess = False
                     t1 = time.time()
                     alist_a = self.recognize_chess(img_a, circles_a, is_save=False)
@@ -331,7 +341,7 @@ class GUI(Frame):
     def do_save_circle_parames(self):
         # 存入找圆参数
         file_data = ''
-        with open(r".\vision\config.py", "r", encoding='utf-8') as f:
+        with open(r".\vision\config_v.py", "r", encoding='utf-8') as f:
             for line in f:
                 if 'minDist' in line:
                     new_line = "minDist = " + str(self.var_a.get()) + '\n'
@@ -349,7 +359,7 @@ class GUI(Frame):
                     new_line = "maxRadius = " + str(self.var_e.get()) + '\n'
                     line = new_line
                 file_data += line
-        with open(r".\vision\config.py", "w", encoding="utf-8") as f:
+        with open(r".\vision\config_v.py", "w", encoding="utf-8") as f:
             f.write(file_data)
             print("ok")
             f.close()
