@@ -44,8 +44,8 @@ class Chessboard(object):
         self.print_to_cl(is_print=False)
         return self.__screen
 
-    def init_board(self, init_state=None):
-        if init_state is None:
+    def init_board(self, init_s=None):
+        if init_s is None:
             print("inintnininit")
             red_rook_left = Rook(u" 车l红 ", "red_rook_left", True, self, 'R')
             red_rook_left.add_to_board(0, 0)
@@ -137,7 +137,8 @@ class Chessboard(object):
             # mess_board = "3a5/3ka3r/9/9/9/9/2R6/9/4K3C/9"
             # mess_board = "3rka1R1/4aR3/4b4/9/9/9/4r4/p3C4/3p5/c1BA1K3"
             # mess_board = "2bak2r1/4aP2R/2R1b4/8p/1Np6/2C6/8P/9/3pr4/5K2c"
-            mess_board = init_state # "r8/3k5/9/9/9/9/9/9/4A4/3AK4"
+            # mess_board = init_s # "r8/3k5/9/9/9/9/9/9/4A4/3AK4"
+            mess_board = "r2k4C/1PN1P1c2/5c3/9/9/9/9/9/3p1p3/4KA3"
             mess_board = mess_board.replace('k','s')
             mess_board = mess_board.replace('n','k')
             mess_board = mess_board.replace('b','e')

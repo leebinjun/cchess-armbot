@@ -114,7 +114,7 @@ def main():
                 print(alist_ret[8:16])
                 print(alist_ret[16:24])
                 print(alist_ret[24:])
-            do_layout( armbot, alist_ret, init_board="4k4/4r4/9/9/9/9/9/9/4A4/4KA3")
+            do_layout( armbot, alist_ret, init_board="r2k4C/1PN1P1c2/5c3/9/9/9/9/9/3p1p3/4KA3")
 
 
         if ch == ord('s') :

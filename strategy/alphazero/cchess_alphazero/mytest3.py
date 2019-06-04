@@ -121,9 +121,13 @@ class StrategyAlphaZero:
     # state 开局FEN字符串
     # rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1
     # rkemsmekr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RKEMSMEKR
-    # state = "r2k4C/1PN1P1c2/5c3/9/9/9/9/9/3p1p3/4KA3"  ##
-    
-    state = "4k4/9/9/9/1R2n2Rp/9/4p4/5p3/4p4/3p1K3"
+    state = "r2k4C/1PN1P1c2/5c3/9/9/9/9/9/3p1p3/4KA3"  ##
+                # mess_board = "4k4/9/9/9/1R2n2Rp/9/4p4/5p3/4p4/3p1K3"
+            # mess_board = "3ak4/4a4/9/5N3/8C/6B2/9/4KA1p1/9/5A1r1"
+            # mess_board = "3a5/3ka3r/9/9/9/9/2R6/9/4K3C/9"
+            # mess_board = "3rka1R1/4aR3/4b4/9/9/9/4r4/p3C4/3p5/c1BA1K3"
+            # mess_board = "2bak2r1/4aP2R/2R1b4/8p/1Np6/2C6/8P/9/3pr4/5K2c"
+    # state = "4k4/9/9/9/1R2n2Rp/9/4p4/5p3/4p4/3p1K3"
     # state = "3ak4/4a4/9/5N3/8C/6B2/9/4KA1p1/9/5A1r1"
     # state = "3a5/3ka3r/9/9/9/9/2R6/9/4K3C/9"
     # state = "3rka1R1/4aR3/4b4/9/9/9/4r4/p3C4/3p5/c1BA1K3"

@@ -95,12 +95,15 @@ class PlayWithHuman:
         creat_sprite_group(self.chessmans, self.env.board.chessmans_hash, self.chessman_w, self.chessman_h)
         return screen, board_background, widget_background
 
-    def start(self, human_first=True):
-        self.env.reset()
+    def start(self, human_first=True, init_s=None):
+        self.env.reset(init_state=init_s)
         self.load_model()
         self.pipe = self.model.get_pipes()
         self.ai = CChessPlayer(self.config, search_tree=defaultdict(VisitState), pipes=self.pipe,
-                              enable_resign=True, debugging=False)
+                              enable_resign=True, debugging=True)
+    # debugging = False时，mytest3.py会报错KeyError:
+    # File "c:/Users/Administrator/Desktop/cchess-armbot/strategy/alphazero\cchess_alphazero\play_games\play.py", line 246, in ai_move
+    # p, v = self.ai.debug[key]
         self.human_move_first = human_first
 
         pygame.init()
@@ -242,6 +245,7 @@ class PlayWithHuman:
                 if not self.env.red_to_move:
                     action = flip_move(action)
                 key = self.env.get_state()
+                print(f"key:{key}")
                 p, v = self.ai.debug[key]
                 logger.info(f"check = {check}, NN value = {v:.3f}")
                 self.nn_value = v

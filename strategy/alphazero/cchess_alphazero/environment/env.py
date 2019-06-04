@@ -20,11 +20,11 @@ class CChessEnv:
 
     def reset(self, init=None, init_state=None):
         if self.config is None or not self.config.opts.light:
-            # logger.info("Initialize heavy environment!")
+            logger.info("Initialize heavy environment!")
             self.board = Chessboard()
-            self.board.init_board(init_state=init_state)
+            self.board.init_board(init_s=init_state)
         else:
-            # logger.info("Initialize light environment!")
+            logger.info("Initialize light environment!")
             self.board = L_Chessboard(init)
         self.winner = None
         self.num_halfmoves = 0

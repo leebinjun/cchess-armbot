@@ -10,11 +10,8 @@ from vision.classify import Classify
 # from strategy.cyclone.cyclone_strategy import StrategyCyclone 
 from strategy.alphazero.cchess_alphazero.mytest2 import StrategyAlphaZero
 
-<<<<<<< HEAD:game/play_test.py
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
-=======
->>>>>>> 9efbc5a8e47acdebe05dbaa64e95c28d788246ca:game/play_test.py
 
 # 由局面board生成ucci通信局面描述字符串
 def board_to_situation(board: np.int8):
@@ -138,7 +135,7 @@ if __name__ == "__main__":
                 print(alist_ret[8:16])
                 print(alist_ret[16:24])
                 print(alist_ret[24:])
-            do_layout(armbot, alist_ret, init_board="4k4/9/9/9/9/9/9/9/9/9")
+            do_layout(armbot, alist_ret, init_board="r2k4C/1PN1P1c2/5c3/9/9/9/9/9/3p1p3/4KA3")
 
         if ch == ord('w') :
             t1 = time.time()
