@@ -1,3 +1,5 @@
+# 封装成类，输入FEN棋盘描述串，返回黑棋移动策略
+
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import sys
@@ -118,9 +120,9 @@ class StrategyAlphaZero:
         from cchess_alphazero.play_games import play
     config.opts.light = False
     pwhc = PlayWithHumanConfig()
+    # pwhc.simulation_num_per_move = 300
     pwhc.update_play_config(config.play)
     logger.info(f"AI move first : {args.ai_move_first}")
-    
 
 
     logger = getLogger(__name__)
@@ -137,7 +139,8 @@ class StrategyAlphaZero:
   
     play = PlayWithHuman(config)
     # play.start(not args.ai_move_first)
-    play.env.reset(init_state="r8/3k5/9/9/9/9/9/9/4A4/3AK4")
+    # play.env.reset(init_state="r8/3k5/9/9/9/9/9/9/4A4/3AK4")
+    play.env.reset(init_state="r2k4C/1PN1P1c2/5c3/9/9/9/9/9/3p1p3/4KA3")
     play.load_model()
     play.pipe = play.model.get_pipes()
     play.ai = CChessPlayer(play.config, search_tree=defaultdict(VisitState), pipes=play.pipe,
@@ -181,16 +184,34 @@ class StrategyAlphaZero:
         mess_board = mess_board.replace('n','K')
         mess_board = mess_board.replace('b','E')
         mess_board = mess_board.replace('a','M')
-        mess_board = mess_board.replace('c','C')
-        mess_board = mess_board.replace('p','P')
-        mess_board = mess_board.replace('r','R')
         mess_board = mess_board.replace('K','s')
         mess_board = mess_board.replace('N','k')
         mess_board = mess_board.replace('B','e')
         mess_board = mess_board.replace('A','m')
-        mess_board = mess_board.replace('c','C')
-        mess_board = mess_board.replace('p','P')
-        mess_board = mess_board.replace('r','R')
+        mess_board = mess_board.replace('c','Q')
+        mess_board = mess_board.replace('C','c')
+        mess_board = mess_board.replace('Q','C')
+        mess_board = mess_board.replace('p','Q')
+        mess_board = mess_board.replace('P','p')
+        mess_board = mess_board.replace('Q','P')
+        mess_board = mess_board.replace('r','Q')
+        mess_board = mess_board.replace('R','r')
+        mess_board = mess_board.replace('Q','R')
+
+        # r2s4C/1PK1P1c2/5c3/9/9/9/9/9/3p1p3/4SM3
+        # r2k4C/1PN1P1c2/5c3/9/9/9/9/9/3p1p3/4KA3
+        # r2s4C/1PK1P1c2/5c3/9/9/9/9/9/3p1p3/4SM3
+
+        # mess_board = position[::-1]
+        # mess_board = mess_board.replace('k','s')
+        # mess_board = mess_board.replace('n','k')
+        # mess_board = mess_board.replace('b','e')
+        # mess_board = mess_board.replace('a','m')
+        # mess_board = mess_board.replace('K','S')
+        # mess_board = mess_board.replace('N','K')
+        # mess_board = mess_board.replace('B','E')
+        # mess_board = mess_board.replace('A','M')
+
 
         no_act = None
         # action, policy = play.ai.action(state, 0, no_act)
@@ -219,7 +240,7 @@ if __name__ == "__main__":
     # print(move)
 
     while True:
-        situation = input()
+        situation = input("input state:")
         move = ai.get_move(position=situation, show_thinking = True)
         print(move)
 
