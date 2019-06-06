@@ -1,19 +1,34 @@
-FEN格式串 http://www.xqbase.com/protocol/cchess_fen.htm
 
-一、FEN的优势　　　FEN(Forsyth-Edwards Notation)是专门用来表示象棋局面的记录规范，在这个规范下，一个局面可以简单地用一行“FEN格式串”来表示，而不必烦琐地说：“红帅在四路次底线，黑将在５路底线……”。由于它是文本格式的(只牵涉到很有限的几个字母、数字和符号)，因此网上传递棋局就非常方便，不用把棋图画在纸上或用文字笨拙地描述了，而是用棋谱编辑软件摆好局面，自动得到FEN格式串，再贴到诸如Web网页、BBS、电子论坛等能够传递文字的网络应用平台上。读者面对FEN格式传，只要借助于棋谱编辑软件，用“赋值”和“粘贴”就可以完全重现局面，使得棋谱交流快速而高效。　二、FEN格式串　　　国际象棋的FEN格式串是由6段ASCII字符串组成的代码(彼此5个空格隔开)，这6段代码的意义依次是：　　(1) 棋盘上的棋子，这是FEN格式串的主要部分；　　(2) 轮到哪一方走子；　　(3) 每方及该方的王翼和后翼是否还存在“王车易位”的可能；　　(4) 是否存在吃过路兵的可能，过路兵是经过哪个格子的；　　(5) 最近一次吃子或者进兵后棋局进行的步数(半回合数)，用来判断“50回合自然限着”；　　(6) 棋局的回合数。　　中国象棋没有“王车易位”和“吃过路兵”的着法，所以FEN格式串的这两项空缺，以最初局面为例说明：　rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1　　　(1) 红色区域，表示棋盘布局，小写表示黑方，大写表示红方，其他规则同国际象棋的FEN规范(请参阅《国际象棋译文苑》文摘——关于PGN和FEN记谱规范(下)一文)。这里要注意两点，一是中国象棋棋盘有10行，所以要用9个“/”把每一行隔开；二是棋子名称用英文字母表示，国际象棋中没有的棋子是仕(士)和炮，这里分别用字母A(a)和C(c)表示。　　(2) 绿色区域，表示轮到哪一方走子，“w”表示红方，“b”表示黑方。(有人认为红方应该用“r”表示，很多象棋软件确实是这样表示的。ElephantBoard尽管用“w”表示，但识别时采取灵活的办法，即“b”表示黑方，除此以外都表示红方。)　　(3) 深紫色区域，空缺，始终用“-”表示。　　(4) 紫红色区域，空缺，始终用“-”表示。　　(5) 蓝色区域，表示双方没有吃子的走棋步数(半回合数)，通常该值达到120就要判和(六十回合自然限着)，一旦形成局面的上一步是吃子，这里就标记“0”。(这个参数对于普通局面的意义不大，ElephantBoard的规则处理器并不是根据这一项来判断和棋的，所以总是计为“0”。)　　(6) 棕色区域，表示当前的回合数，在研究中局或排局时，作为研究对象的局面，这一项可以写1，随着局势的发展逐渐增加。　三、FEN文件　　　FEN格式串有很多载体，通常的做法是把它保存成后缀为“.FEN”的文件。FEN文件是ASCII码文件，可以用任何文本编辑软件来建立和修改，也可以通过象棋棋谱软件来产生。
+## 目录
 
-
-黑(机械臂)
-0 1 2 3 4 5 6 7 8 x 
-1 ...
-2
-3
-...
-y
-红
-
-
-
-
+CCHESS-ARMBOT   
+└─strategy  
+   ├─alphazero  
+   │  │  README.md  
+   │  ├─cchess_alphazero  
+   │  │  │  mytest2.py   StrategyAlphaZero类    
+   │  │  │  mytest3.py   GUI用于残局测试  
+   │  │  │  config.py    Config类  
+   │  │  │  run-cg.py    原始工程执行入口  
+   │  │  ├─agent  
+   │  │  │  │  model.py  CChessModel类  
+   │  │  │  └─ player.py CChessPlayer类  
+   │  │  ├─configs  
+   │  │  │  └─ mini.py  
+   │  │  ├─environment  
+   │  │  │  └─ chessboard.py  棋盘类，初始化棋盘   
+   │  │  └─play_games  
+   │  │     └─ play.py  PlayWithHuman类  
+   │  └─data  
+   │     └─model  
+   │        └─ model_best_weight.h5    cczero最新权重  
+   ├─binghewusi   象棋引擎-兵河五车   
+   │  │  Binghewusi.exe           引擎文件  
+   │  │  binghewusi_strategy.py   StrategyBinghewusi类  
+   │  └─ test.py                  subprocess通信测试   
+   └─cyclone      象棋引擎-象棋旋风  
+      │  cyclone.exe 引擎文件  
+      │  cyclone_strategy.py StrategyCyclone类  
+      └─ test.py subprocess通信测试  
 
 
