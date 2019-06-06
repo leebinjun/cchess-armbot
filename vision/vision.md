@@ -13,7 +13,7 @@ gui_test.py是主棋盘的显示的另一版本，功能和gui.py相同。
 
 ## 目录
 
-CCHESS-ARMBOT  
+CCHESS-ARMBOT   
 └─vision  
     │  classify.py  Classify棋子识别类  
     |      chessidentify()          : 识别单个棋子   
