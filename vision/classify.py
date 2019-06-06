@@ -140,7 +140,7 @@ class Classify():
         return res
 
 
-    # 输入摄像头拍摄的原始图片，识别存子区域棋子放置情况
+    # 输入摄像头拍摄的原始图片，识别棋盘区域棋子放置情况
     def recognize_chess_list_t(self, img, is_save=False, is_show=False):
         points = config_v.POS_BOARD
         img_t = perTrans_chess(img, points)
